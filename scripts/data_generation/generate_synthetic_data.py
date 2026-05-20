@@ -61,14 +61,14 @@ def province_risk_index(province_arr):
     return np.array([lookup[p] for p in province_arr])
 
 def income_seasonality_index(employment_arr, n):
-    result = np.ones(n)
-    for i, emp in enumerate(employment_arr):
-        if emp == "Informal":
-            result[i] = rng.uniform(1.5, 3.5)
-        elif emp == "Self-employed":
-            result[i] = rng.uniform(1.2, 2.5)
-        else:
-            result[i] = rng.uniform(1.05, 1.25)
+    """Peak-to-trough income ratio. Higher = more volatile."""
+    mask_inf = employment_arr == "Informal"
+    mask_se  = employment_arr == "Self-employed"
+    mask_fo  = ~(mask_inf | mask_se)
+    result = np.empty(n)
+    result[mask_inf] = rng.uniform(1.5,  3.5,  int(mask_inf.sum()))
+    result[mask_se]  = rng.uniform(1.2,  2.5,  int(mask_se.sum()))
+    result[mask_fo]  = rng.uniform(1.05, 1.25, int(mask_fo.sum()))
     return result
 
 
@@ -76,7 +76,7 @@ def new_features_for_persona(profile, income, employment, n):
     """Generate 8 new synthetic features per persona group."""
     # savings_retention_rate
     if profile in ("excellent", "good"):
-        savings = np.clip(rng.beta(6, 3, n), 0.10, 0.60)
+        savings = np.clip(rng.beta(4, 3, n), 0.10, 0.60)
     elif profile == "poor":
         savings = np.clip(rng.beta(2, 8, n), 0.00, 0.20)
     else:
