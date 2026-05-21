@@ -17,7 +17,7 @@ router = APIRouter()
 BASE_DIR = Path(__file__).parent.parent.parent.parent
 rf_pipeline = joblib.load(BASE_DIR / "ml_pipeline/models/saved/random_forest.joblib")
 stacking_pipeline = joblib.load(BASE_DIR / "ml_pipeline/models/saved/stacking_ensemble.joblib")
-scoring_pipeline = joblib.load(BASE_DIR / "ml_pipeline/models/saved/voting_ensemble.joblib")
+scoring_pipeline = rf_pipeline  # RF is the only calibrated model; stacking/boosters collapse to PD~0 on synthetic data
 
 _PROVINCE_RISK = {
     "Harare": 0.85, "Bulawayo": 0.87, "Masvingo": 1.00, "Mutare": 1.00,
