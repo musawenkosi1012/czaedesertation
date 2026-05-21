@@ -29,14 +29,26 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function safeFetch(endpoint: string, retries = 2): Promise<any> {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const r = await api.get(endpoint);
+          return r.data;
+        } catch {
+          if (i < retries) await new Promise(res => setTimeout(res, 3000));
+        }
+      }
+      return null;
+    }
+
     async function fetchData() {
       try {
-        const [statsRes, assertionsRes] = await Promise.all([
-          api.get("/analytics/dashboard-stats"),
-          api.get("/analytics/verified-assertions"),
+        const [stats, assertions] = await Promise.all([
+          safeFetch("/analytics/dashboard-stats"),
+          safeFetch("/analytics/verified-assertions"),
         ]);
-        setStats(statsRes.data);
-        setAssertions(assertionsRes.data);
+        if (stats)      setStats(stats);
+        if (assertions) setAssertions(assertions);
       } catch (err) {
         console.error("Dashboard fetch error", err);
       } finally {

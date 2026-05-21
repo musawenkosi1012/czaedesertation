@@ -57,26 +57,42 @@ export default function AnalyticsPage() {
   const [loading,      setLoading]      = useState(true);
 
   useEffect(() => {
+    async function safeFetch(endpoint: string, retries = 2): Promise<any> {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const r = await api.get(endpoint);
+          return r.data;
+        } catch {
+          if (i < retries) await new Promise(res => setTimeout(res, 3000));
+        }
+      }
+      return null;
+    }
+
     async function fetchData() {
       try {
-        const results = await Promise.allSettled([
-          api.get("/analytics/model-comparison"),
-          api.get("/analytics/fairness-report"),
-          api.get("/analytics/verified-assertions"),
-          api.get("/analytics/sensitivity-analysis"),
-          api.get("/analytics/roc-data"),
-          api.get("/analytics/confusion-matrix"),
-          api.get("/analytics/correlation-data"),
-          api.get("/analytics/feature-importance"),
+        // Wake the service, then fetch sequentially to avoid concurrent 503s on cold start
+        const [comparison, fairness, assertions, sensitivity] = await Promise.all([
+          safeFetch("/analytics/model-comparison"),
+          safeFetch("/analytics/fairness-report"),
+          safeFetch("/analytics/verified-assertions"),
+          safeFetch("/analytics/sensitivity-analysis"),
         ]);
-        if (results[0].status === "fulfilled") setComparison(results[0].value.data);
-        if (results[1].status === "fulfilled") setFairness(results[1].value.data);
-        if (results[2].status === "fulfilled") setAssertions(results[2].value.data);
-        if (results[3].status === "fulfilled") setSensitivity(results[3].value.data);
-        if (results[4].status === "fulfilled") setRocData(results[4].value.data);
-        if (results[5].status === "fulfilled") setConfMatrix(results[5].value.data);
-        if (results[6].status === "fulfilled") setCorrData(results[6].value.data);
-        if (results[7].status === "fulfilled") setFeatureImp(results[7].value.data);
+        if (comparison)  setComparison(comparison);
+        if (fairness)    setFairness(fairness);
+        if (assertions)  setAssertions(assertions);
+        if (sensitivity) setSensitivity(sensitivity);
+
+        const [rocData, confMatrix, corrData, featureImp] = await Promise.all([
+          safeFetch("/analytics/roc-data"),
+          safeFetch("/analytics/confusion-matrix"),
+          safeFetch("/analytics/correlation-data"),
+          safeFetch("/analytics/feature-importance"),
+        ]);
+        if (rocData)    setRocData(rocData);
+        if (confMatrix) setConfMatrix(confMatrix);
+        if (corrData)   setCorrData(corrData);
+        if (featureImp) setFeatureImp(featureImp);
       } catch (err) {
         console.error(err);
       } finally {
