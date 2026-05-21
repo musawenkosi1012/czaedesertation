@@ -18,6 +18,8 @@ with engine.connect() as conn:
     for col_sql in [
         "ALTER TABLE loans ADD COLUMN rejection_reason TEXT",
         "ALTER TABLE loans ADD COLUMN max_allowed_amount REAL",
+        "ALTER TABLE mobile_money_data ADD COLUMN counterparty TEXT",
+        "ALTER TABLE mobile_money_data ADD COLUMN balance_after REAL",
     ]:
         try:
             conn.execute(text(col_sql))
