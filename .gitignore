@@ -1,0 +1,42 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Raw synthetic data (not needed at runtime)
+data/synthetic/
+catboost_info/
+
+# Keep data/processed/ and models — Railway needs them to run
+# ml_pipeline/models/saved/  ← tracked intentionally
+# data/processed/             ← tracked intentionally
+
+# Database — czae_credit.db is 682MB locally, excluded from git
+# Railway uses czae_credit_slim.db (25MB) copied to czae_credit.db at build time
+*.sqlite
+czae_credit.db
+czae_credit_full.db
+
+# Frontend
+frontend/web/node_modules/
+frontend/web/.next/
+frontend/web/out/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

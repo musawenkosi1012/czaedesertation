@@ -51,8 +51,8 @@ def extract_features():
     # Calculate derived features
     df['age'] = df['date_of_birth'].apply(lambda x: (datetime.now() - pd.to_datetime(x)).days // 365)
     df['income_to_loan_ratio'] = 5000 / (df['monthly_income'] + 1e-6)
-    # Derive months_active from borrower ID to ensure 12-71 range across dataset
-    df['months_active'] = df['id'] % 60 + 12
+    # Derive months_active from row index to guarantee 12-71 range across any ID sequence
+    df['months_active'] = (np.arange(len(df)) % 60) + 12
     df['first_tx_date_months_ago'] = df['months_active']
     # These features are computed from transaction history during seeding — use DB values
     for col, default in [('income_growth', 0.05), ('tx_consistency', 0.5),

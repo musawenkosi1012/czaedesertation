@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt && cp backend/czae_credit_slim.db backend/czae_credit.db"
+
+[deploy]
+startCommand = "python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+restartPolicyType = "on_failure"
